@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Slack Engagement Summary",
+  "version": "1.0.6",
+  "description": "Analyse Slack channel messages, show tables, copy to clipboard, and download CSV.",
+  "action": {
+    "default_title": "Slack Engagement Summary",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "slack-stats.png",
+      "32": "slack-stats.png",
+      "48": "slack-stats.png"
+    }
+  },
+  "icons": {
+    "16": "slack-stats.png",
+    "32": "slack-stats.png",
+    "48": "slack-stats.png",
+    "128": "slack-stats.png"
+  },
+  "permissions": ["activeTab", "scripting", "downloads", "tabs", "clipboardWrite"],
+  "host_permissions": ["https://*.slack.com/*"]
+}
