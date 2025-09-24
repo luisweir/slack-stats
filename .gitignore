@@ -1,0 +1,36 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Node / Web project artefacts
+node_modules/
+dist/
+build/
+*.log
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+env/
+venv/
+.Python
+
+# Testing / coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Misc
+*.zip
+*.tar
+*.gz
+*.bak
