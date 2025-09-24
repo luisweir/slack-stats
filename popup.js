@@ -209,11 +209,9 @@ function applyFilter(fullRows, query) {
 function getActiveTabAndRows() {
   const weeksActive = document.getElementById('tabWeeks').classList.contains('active');
   if (weeksActive) {
-    const q = document.getElementById('filterWeeks').value;
-    return { which: 'weeks', rows: applyFilter(dataCache.weekTable, q) };
+    return { which: 'weeks', rows: dataCache.weekTable };
   } else {
-    const q = document.getElementById('filterSenders').value;
-    return { which: 'senders', rows: applyFilter(dataCache.senderTable, q) };
+    return { which: 'senders', rows: dataCache.senderTable };
   }
 }
 
@@ -231,7 +229,7 @@ function switchTab(which) {
   }
 }
 
-async function runAnalyse() {
+async function runAnalyse(keywordsOverride) {
   const statusEl = document.getElementById('status');
   const countsEl = document.getElementById('counts');
   const copyBtn = document.getElementById('copyBtn');
@@ -260,8 +258,9 @@ async function runAnalyse() {
     return;
   }
 
-  const kwText = document.getElementById('keywordsFilter')?.value || '';
-  const keywords = parseKeywords(kwText);
+  const kwTextEl = document.getElementById('keywordsFilter');
+  const kwText = kwTextEl?.value || '';
+  const keywords = Array.isArray(keywordsOverride) ? keywordsOverride : parseKeywords(kwText);
   const resp = await sendTabMessage(tab.id, { type: 'SLACK_ENGAGEMENT_ANALYSE', keywords });
   if (!resp || !resp.ok) {
     statusEl.textContent = resp && resp.error ? resp.error : 'No data found. Scroll the channel and try again.';
@@ -299,15 +298,23 @@ document.getElementById('analyseBtn').addEventListener('click', runAnalyse);
 document.getElementById('tabWeeks').addEventListener('click', () => switchTab('weeks'));
 document.getElementById('tabSenders').addEventListener('click', () => switchTab('senders'));
 
-document.getElementById('filterWeeks').addEventListener('input', e => {
-  const table = document.getElementById('tableWeeks');
-  const filtered = applyFilter(dataCache.weekTable, e.target.value);
-  renderTable(table, filtered);
+document.getElementById('filterWeeks').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const kwText = e.target.value || '';
+    const keywords = parseKeywords(kwText);
+    const kwInput = document.getElementById('keywordsFilter');
+    if (kwInput) kwInput.value = kwText;
+    runAnalyse(keywords);
+  }
 });
-document.getElementById('filterSenders').addEventListener('input', e => {
-  const table = document.getElementById('tableSenders');
-  const filtered = applyFilter(dataCache.senderTable, e.target.value);
-  renderTable(table, filtered);
+document.getElementById('filterSenders').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const kwText = e.target.value || '';
+    const keywords = parseKeywords(kwText);
+    const kwInput = document.getElementById('keywordsFilter');
+    if (kwInput) kwInput.value = kwText;
+    runAnalyse(keywords);
+  }
 });
 
 document.getElementById('keywordsFilter')?.addEventListener('keydown', e => {
