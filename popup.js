@@ -195,6 +195,11 @@ function escapeHtml(v) {
     .replaceAll('"', '&quot;');
 }
 
+function parseKeywords(text) {
+  if (!text) return [];
+  return text.split(/[;,]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+}
+
 function applyFilter(fullRows, query) {
   if (!query) return fullRows;
   const q = query.toLowerCase();
@@ -255,7 +260,9 @@ async function runAnalyse() {
     return;
   }
 
-  const resp = await sendTabMessage(tab.id, { type: 'SLACK_ENGAGEMENT_ANALYSE' });
+  const kwText = document.getElementById('keywordsFilter')?.value || '';
+  const keywords = parseKeywords(kwText);
+  const resp = await sendTabMessage(tab.id, { type: 'SLACK_ENGAGEMENT_ANALYSE', keywords });
   if (!resp || !resp.ok) {
     statusEl.textContent = resp && resp.error ? resp.error : 'No data found. Scroll the channel and try again.';
     return;
@@ -301,6 +308,12 @@ document.getElementById('filterSenders').addEventListener('input', e => {
   const table = document.getElementById('tableSenders');
   const filtered = applyFilter(dataCache.senderTable, e.target.value);
   renderTable(table, filtered);
+});
+
+document.getElementById('keywordsFilter')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    runAnalyse();
+  }
 });
 
 // Optional, auto-run if Slack tab is active

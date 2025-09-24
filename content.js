@@ -82,7 +82,7 @@
     return 'slack';
   }
 
-  function analyse() {
+  function analyse(keywords = []) {
     const channelName = getChannelName();
 
     const allRoots = collectRoots(document);
@@ -92,7 +92,7 @@
       return { ok: false, error: 'No Slack-like message nodes found in the current view. Scroll the channel to load more.' };
     }
 
-    const rows = candidates.map(node => {
+    const rowsRaw = candidates.map(node => {
       const senderBtn = node.querySelector('.c-message__sender_button');
       const sender = senderBtn ? senderBtn.textContent.trim() : '(unknown)';
 
@@ -129,8 +129,12 @@
       const text = node.querySelector('[data-qa="message-text"]')?.innerText || '';
       const chars = text.trim().length;
 
-      return { sender, date, reactions, files, replies, chars };
+      return { sender, date, reactions, files, replies, chars, _text: text.toLowerCase() };
     });
+
+    const rows = (Array.isArray(keywords) && keywords.length)
+      ? rowsRaw.filter(r => keywords.some(k => r._text.includes(String(k).toLowerCase())))
+      : rowsRaw;
 
     // Group by ISO week
     const byWeek = new Map();
@@ -196,7 +200,7 @@
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg && msg.type === 'SLACK_ENGAGEMENT_ANALYSE') {
       try {
-        const result = analyse();
+        const result = analyse(Array.isArray(msg.keywords) ? msg.keywords : []);
         sendResponse(result);
       } catch (e) {
         sendResponse({ ok: false, error: String(e && e.message ? e.message : e) });
