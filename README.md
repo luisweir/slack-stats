@@ -17,8 +17,13 @@ No backend, no Slack API tokens — everything runs locally in the browser.
 ├─ popup.js                # Popup logic (rendering, messaging, CSV/clipboard)
 ├─ content.js              # Content script (scrapes + aggregates Slack messages)
 ├─ slack-stats.png         # Extension icon
-├─ .clinerules.yaml        # Project rules configuration
-└─ README.md               # This document
+├─ notebooks/
+│  └─ slack_engagement_analysis.ipynb  # Executive-ready weekly analysis notebook
+├─ reports/
+│  ├─ <channel>_weeks.csv              # Per-channel weekly exports (input to notebook)
+│  └─ name_mappings.txt                # Optional channel name mapping (TSV)
+├─ CHANGELOG.md
+└─ README.md
 ```
 
 ## 🛠️ Setup
@@ -57,6 +62,21 @@ zip -r ../slack-engagement-summary.zip .
 5. Switch between the Weeks and Senders tabs.
 6. Use “Filter weeks/senders” inputs to filter visible rows in the rendered table.
 7. Use “Copy” (HTML/TSV) or “Download CSV” to export the currently selected table.
+
+## 📓 Notebook: Slack Engagement Analysis
+- Location: notebooks/slack_engagement_analysis.ipynb
+- Inputs: CSVs in reports/*.csv, one per channel, filename like "<channel>_weeks.csv"
+- Zero-filled weeks: weeks with no activity are included as zeros across charts and aggregates so lack of engagement is visible.
+- Time window: last 26 weeks by default (WEEKS_BACK constant inside the notebook).
+- Channel name mappings (optional):
+  - File: reports/name_mappings.txt (tab-separated values)
+  - Columns: "Team Channel" (source) and "Consolidated Team Channel Name" (target)
+  - Matching rules:
+    - Leading "#" in channel names is ignored when matching
+    - The "_weeks" or "-weeks" suffix in filenames is already stripped before matching
+    - Matching is case-insensitive
+    - If the same source appears multiple times, the last mapping wins
+  - If a channel has no mapping, the original channel name is used
 
 ## 🧪 Tests
 There is currently no automated test suite; use the following smoke tests (as required by the Chrome Extension rules):

@@ -35,3 +35,4 @@ coverage/
 *.tar
 *.gz
 *.bak
+reports/
